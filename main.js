@@ -1,4 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
+    const playerSetup = document.getElementById('player-setup');
+    const nameSetup = document.getElementById('name-setup');
+    const teamAssignment = document.getElementById('team-assignment');
     const codedMessageInput = document.getElementById('codedMessage');
     const plainTextInput = document.getElementById('plainTextMessage');
     const submitButton = document.getElementById('submitButton');
@@ -13,12 +16,58 @@ document.addEventListener('DOMContentLoaded', () => {
     const result = document.getElementById('result');
     const wrongSound = new Audio('wrongCode.mp3');
     codedMessageInput.style.display = 'none'
+    const playerCountInput = document.getElementById('playerCount');
+    const playerNamesDiv = document.getElementById('playerNames');
+    const blueTeamList = document.getElementById('blueTeamList');
+    const redTeamList = document.getElementById('redTeamList');
+    const nextButton = document.getElementById('nextButton');
+    const assignButton = document.getElementById('assignButton');
+    const startGameButton = document.getElementById('startGameButton');
     
     let isDrawing = false;
     let codedMessage = '';
+    let players = [];
     writeButton.addEventListener('click', () => {
         codedMessageInput.style.display = 'block'
         canvas.style.display = 'none';
+    });
+
+    nextButton.addEventListener('click', () => {
+        const playerCount = parseInt(playerCountInput.value);
+        if (playerCount && playerCount > 1) {
+            playerSetup.style.display = 'none';
+            nameSetup.style.display = 'block';
+            for (let i = 0; i < playerCount; i++) {
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.placeholder = `Player ${i + 1} Name`;
+                playerNamesDiv.appendChild(input);
+            }
+        }
+    });
+
+    assignButton.addEventListener('click', () => {
+        const playerInputs = playerNamesDiv.querySelectorAll('input');
+        players = Array.from(playerInputs).map(input => input.value.trim()).filter(name => name !== '');
+        if (players.length < 2) {
+            alert('Please enter at least two player names.');
+            return;
+        }
+        nameSetup.style.display = 'none';
+        teamAssignment.style.display = 'block';
+
+        const shuffledPlayers = players.sort(() => Math.random() - 0.5);
+        const mid = Math.ceil(shuffledPlayers.length / 2);
+        const blueTeam = shuffledPlayers.slice(0, mid);
+        const redTeam = shuffledPlayers.slice(mid);
+
+        blueTeamList.innerHTML = blueTeam.map(player => `<li>${player}</li>`).join('');
+        redTeamList.innerHTML = redTeam.map(player => `<li>${player}</li>`).join('');
+    });
+
+    startGameButton.addEventListener('click', () => {
+        teamAssignment.style.display = 'none';
+        inputArea.style.display = 'block';
     });
 
     

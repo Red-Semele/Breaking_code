@@ -9,6 +9,30 @@
 <body>
     <div class="container">
         <h1>Code and Decode Game</h1>
+        <div id="player-setup">
+            <h2>Enter Number of Players</h2>
+            <input type="number" id="playerCount" min="3" placeholder="Number of Players">
+            <button id="nextButton">Next</button>
+        </div>
+
+        <div id="name-setup" style="display: none;">
+            <h2>Enter Player Names</h2>
+            <div id="playerNames"></div>
+            <button id="assignButton">Assign Teams</button>
+        </div>
+
+        <div id="team-assignment" style="display: none;">
+            <h2>Teams</h2>
+            <div id="blueTeam">
+                <h3>Blue Team</h3>
+                <ul id="blueTeamList"></ul>
+            </div>
+            <div id="redTeam">
+                <h3>Red Team</h3>
+                <ul id="redTeamList"></ul>
+            </div>
+            <button id="startGameButton">Start Game</button>
+        </div>
         <div id="input-area">
             <h2>Step 1: Create Your Message</h2>
             <div class="flex-container">
