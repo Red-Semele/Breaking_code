@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code and Decode Game</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Code and Decode Game</h1>
+        <div id="input-area">
+            <h2>Step 1: Create Your Message</h2>
+            <div class="flex-container">
+                <textarea id="plainTextMessage" placeholder="Write your plaintext here..."></textarea>
+                <textarea id="codedMessage" placeholder="Write your coded message here..."></textarea>
+            </div>
+            <button id="drawButton">Draw</button>
+            <button id="writeButton">Write</button>
+            <canvas id="canvas" style="display: none;"></canvas>
+            <br>
+            <button id="submitButton">Submit Message</button>
+        </div>
+        <div id="output-area" style="display: none;">
+            <h2>Step 2: Decode the Message</h2>
+            <div id="plaintextDisplay" class="plaintext-display"></div>
+            <div id="plaintextCountDisplay"></div>
+            <div id="displayMessage"></div>
+            
+            
+            <textarea id="decodedMessage" placeholder="Write your decoded message here..."></textarea>
+            <button id="decodeButton">Submit Decoded Message</button>
+            <div id="result"></div>
+        </div>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>
