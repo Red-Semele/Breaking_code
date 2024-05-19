@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
     const outputArea = document.getElementById('output-area');
+    const inputArea = document.getElementById('input-area')
     const displayMessage = document.getElementById('displayMessage');
     const decodedMessageInput = document.getElementById('decodedMessage');
     const decodeButton = document.getElementById('decodeButton');
@@ -23,10 +24,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const nextButton = document.getElementById('nextButton');
     const assignButton = document.getElementById('assignButton');
     const startGameButton = document.getElementById('startGameButton');
+    const currentTeamDiv = document.getElementById('currentTeam');
     
     let isDrawing = false;
     let codedMessage = '';
     let players = [];
+    let currentTeam = 'Blue'; // Initial team TODO: Only do this if there aren't enough people to form 2 full teams.
     writeButton.addEventListener('click', () => {
         codedMessageInput.style.display = 'block'
         canvas.style.display = 'none';
@@ -68,6 +71,8 @@ document.addEventListener('DOMContentLoaded', () => {
     startGameButton.addEventListener('click', () => {
         teamAssignment.style.display = 'none';
         inputArea.style.display = 'block';
+        currentTeam = 'Blue'
+        updateCurrentTeam(); // Display initial team
     });
 
     
@@ -90,19 +95,51 @@ document.addEventListener('DOMContentLoaded', () => {
         canvas.style.display = 'block';
         resizeCanvas(); // Set the initial size of the canvas
 
-        canvas.addEventListener('mousedown', () => {
-            isDrawing = true;
-        });
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mousemove', draw);
+
+        canvas.addEventListener('touchstart', startDrawing);
+        canvas.addEventListener('touchend', stopDrawing);
+        canvas.addEventListener('touchmove', draw);
 
         window.addEventListener('resize', resizeCanvas);
-
-        canvas.addEventListener('mouseup', () => {
-            isDrawing = false;
-            ctx.beginPath();
-        });
-
-        canvas.addEventListener('mousemove', draw);
     });
+
+    function startDrawing(event) {
+        isDrawing = true;
+        draw(event); // Start drawing immediately
+    }
+
+    function stopDrawing() {
+        isDrawing = false;
+        ctx.beginPath();
+    }
+
+    function draw(event) {
+        if (!isDrawing) return;
+
+        event.preventDefault();
+
+        const rect = canvas.getBoundingClientRect();
+        let offsetX, offsetY;
+
+        if (event.touches) {
+            const touch = event.touches[0];
+            offsetX = touch.clientX - rect.left;
+            offsetY = touch.clientY - rect.top;
+        } else {
+            offsetX = event.clientX - rect.left;
+            offsetY = event.clientY - rect.top;
+        }
+
+        ctx.lineWidth = 1;
+        ctx.lineCap = 'round';
+        ctx.lineTo(offsetX, offsetY);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(offsetX, offsetY);
+    }
 
      function transformPlaintext() {
         const obscuredPlain = plainTextInput.value.replace(/[a-zA-Z0-9]/g, '_\u00A0\u00A0\u00A0').replace(/ /g, '\u00A0\u00A0\u00A0');
@@ -165,13 +202,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 result.textContent = 'Correct!';
                 result.style.color = 'green';
             } else {
-                result.textContent = 'Try again!';
+                result.textContent = 'Wrong!';
                 result.style.color = 'red';
                 wrongSound.pause(); // Stop the current sound
                 wrongSound.currentTime = 0; // Reset to the beginning
                 wrongSound.play();
+                swapTeam()
                 //TODO: Move on to the second team if the spy doesn't crack it.
             }
         }
     });
+
+    function updateCurrentTeam() {
+        console.log(currentTeamDiv)
+        currentTeamDiv.textContent = `Current Team: ${currentTeam}`
+    }
+    
+    function swapTeam() {
+        currentTeam = currentTeam === 'Blue' ? 'Red' : 'Blue';
+        updateCurrentTeam();
+    }
 });
+
