@@ -128,6 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let offsetX, offsetY;
 
         if (event.touches) {
+            document.body.style.backgroundColor = 'red'; // Change screen to red when drawing starts
             const touch = event.touches[0];
             offsetX = touch.clientX - rect.left;
             offsetY = touch.clientY - rect.top;
