@@ -93,6 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
     drawButton.addEventListener('click', () => {
         codedMessageInput.style.display = 'none'
         canvas.style.display = 'block';
+        document.body.style.overflow = 'hidden';
         resizeCanvas(); // Set the initial size of the canvas
 
         canvas.addEventListener('mousedown', startDrawing);
@@ -175,6 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     submitButton.addEventListener('click', () => {
+        document.body.style.overflow = 'auto';
         if (canvas.style.display === 'block') {
             codedMessage = canvas.toDataURL();
         } else {
