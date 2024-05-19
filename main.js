@@ -110,11 +110,13 @@ document.addEventListener('DOMContentLoaded', () => {
     function startDrawing(event) {
         isDrawing = true;
         draw(event); // Start drawing immediately
+        event.preventDefault();
     }
 
-    function stopDrawing() {
+    function stopDrawing(event) {
         isDrawing = false;
         ctx.beginPath();
+        event.preventDefault();
     }
 
     function draw(event) {
