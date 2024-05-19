@@ -27,11 +27,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const assignButton = document.getElementById('assignButton');
     const startGameButton = document.getElementById('startGameButton');
     const currentTeamDiv = document.getElementById('currentTeam');
+    const playerScores = {};
     
     let isDrawing = false;
     let codedMessage = '';
     let players = [];
-    let currentTeam = 'Blue'; // Initial team TODO: Only do this if there aren't enough people to form 2 full teams.
+    let currentTeam = 'blue'; // Initial team TODO: Only do this if there aren't enough people to form 2 full teams.
+    let blueTeam = [];
+    let redTeam = [];
     writeButton.addEventListener('click', () => {
         codedMessageInput.style.display = 'block'
         canvas.style.display = 'none';
@@ -63,8 +66,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const shuffledPlayers = players.sort(() => Math.random() - 0.5);
         const mid = Math.ceil(shuffledPlayers.length / 2);
-        const blueTeam = shuffledPlayers.slice(0, mid);
-        const redTeam = shuffledPlayers.slice(mid);
+        //const blueTeam = shuffledPlayers.slice(0, mid);
+        //const redTeam = shuffledPlayers.slice(mid);
+        blueTeam = shuffledPlayers.slice(0, mid);
+        redTeam = shuffledPlayers.slice(mid);
 
         blueTeamList.innerHTML = blueTeam.map(player => `<li>${player}</li>`).join('');
         redTeamList.innerHTML = redTeam.map(player => `<li>${player}</li>`).join('');
@@ -73,9 +78,16 @@ document.addEventListener('DOMContentLoaded', () => {
     startGameButton.addEventListener('click', () => {
         teamAssignment.style.display = 'none';
         inputArea.style.display = 'block';
-        currentTeam = 'Blue'
+        resetPlayerScores();
+        currentTeam = 'blue'
         updateCurrentTeam(); // Display initial team
     });
+
+    function resetPlayerScores() {
+        players.forEach(player => {
+            playerScores[player] = 0; // Initialize each player's score to 0
+        });
+    }
 
     
 
@@ -126,7 +138,6 @@ document.addEventListener('DOMContentLoaded', () => {
         let offsetX, offsetY;
 
         if (event.touches) {
-            document.body.style.backgroundColor = 'red'; // Change screen to red when drawing starts
             const touch = event.touches[0];
             offsetX = touch.clientX - rect.left;
             offsetY = touch.clientY - rect.top;
@@ -153,6 +164,7 @@ document.addEventListener('DOMContentLoaded', () => {
     plainTextInput.addEventListener('input', transformPlaintext);
 
     submitButton.addEventListener('click', () => {
+        swapTeam()
         document.body.style.overflow = 'auto';
         if (canvas.style.display === 'block') {
             codedMessage = canvas.toDataURL();
@@ -179,6 +191,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (decodedMessage) {
             if (decodedMessage === plainTextInput.value) {
+                // Increment score for each player in the current team
+                console.log("Correct answer")
+                players.forEach(player => {
+                    console.log(player)
+                    if (isPlayerInCurrentTeam(player)) {
+                        //TODO: this part of the code does not seem to trigger, check how isPlayerInCurrentTeam works.
+                        playerScores[player]++;
+                        console.log(player + " awarded 1 point")
+                        console.log ("TEST1")
+                    }
+                });
                 result.textContent = 'Correct!';
                 result.style.color = 'green';
             } else {
@@ -194,13 +217,31 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function updateCurrentTeam() {
-        console.log(currentTeamDiv)
+        console.log(currentTeam)
         currentTeamDiv.textContent = `Current Team: ${currentTeam}`
     }
     
     function swapTeam() {
-        currentTeam = currentTeam === 'Blue' ? 'Red' : 'Blue';
+        currentTeam = currentTeam === 'blue' ? 'red' : 'blue';
         updateCurrentTeam();
     }
+
+    function isPlayerInCurrentTeam(player) {
+        console.log("TeamCheck")
+        console.log(currentTeam) //TODO: For some reason currentteam appears to be set wrong.
+        if (currentTeam === 'blue') {
+            console.log(blueTeam)
+            return blueTeam.includes(player);
+        } else if (currentTeam === 'red') {
+            console.log(redTeam)
+            return redTeam.includes(player);
+        } else {
+            console.log("error")
+            return false;
+        }
+        
+    }
 });
+
+
 
