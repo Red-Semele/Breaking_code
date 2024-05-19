@@ -1,6 +1,4 @@
 //TODO: Find an alternate way to stop scrolling instead of preventing an event, because that might block the ability to draw.
-
-document.addEventListener('DOMContentLoaded', () => {
     const playerSetup = document.getElementById('player-setup');
     const nameSetup = document.getElementById('name-setup');
     const teamAssignment = document.getElementById('team-assignment');
@@ -28,9 +26,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const startGameButton = document.getElementById('startGameButton');
     const currentTeamDiv = document.getElementById('currentTeam');
     const playerScores = {};
+    let codeCreator = "";
     
     let isDrawing = false;
     let codedMessage = '';
+    let decodedMessage
     let players = [];
     let currentTeam = 'blue'; // Initial team TODO: Only do this if there aren't enough people to form 2 full teams.
     let blueTeam = [];
@@ -51,6 +51,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 input.placeholder = `Player ${i + 1} Name`;
                 playerNamesDiv.appendChild(input);
             }
+            if (playerCount >= 6) {
+                console.log ("activate potential online mode")
+                onlineMode()
+            }
         }
     });
 
@@ -61,18 +65,11 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('Please enter at least two player names.');
             return;
         }
+        
         nameSetup.style.display = 'none';
-        teamAssignment.style.display = 'block';
-
-        const shuffledPlayers = players.sort(() => Math.random() - 0.5);
-        const mid = Math.ceil(shuffledPlayers.length / 2);
-        //const blueTeam = shuffledPlayers.slice(0, mid);
-        //const redTeam = shuffledPlayers.slice(mid);
-        blueTeam = shuffledPlayers.slice(0, mid);
-        redTeam = shuffledPlayers.slice(mid);
-
-        blueTeamList.innerHTML = blueTeam.map(player => `<li>${player}</li>`).join('');
-        redTeamList.innerHTML = redTeam.map(player => `<li>${player}</li>`).join('');
+        assignTeams ()
+        
+        
     });
 
     startGameButton.addEventListener('click', () => {
@@ -164,6 +161,7 @@ document.addEventListener('DOMContentLoaded', () => {
     plainTextInput.addEventListener('input', transformPlaintext);
 
     submitButton.addEventListener('click', () => {
+        codeCreator = currentTeam
         swapTeam()
         document.body.style.overflow = 'auto';
         if (canvas.style.display === 'block') {
@@ -187,23 +185,33 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     decodeButton.addEventListener('click', () => {
-        const decodedMessage = decodedMessageInput.value;
+        decodedMessage = decodedMessageInput.value;
 
         if (decodedMessage) {
             if (decodedMessage === plainTextInput.value) {
                 // Increment score for each player in the current team
                 console.log("Correct answer")
+
                 players.forEach(player => {
                     console.log(player)
                     if (isPlayerInCurrentTeam(player)) {
                         //TODO: this part of the code does not seem to trigger, check how isPlayerInCurrentTeam works.
                         playerScores[player]++;
                         console.log(player + " awarded 1 point")
+                        
                         console.log ("TEST1")
                     }
                 });
                 result.textContent = 'Correct!';
                 result.style.color = 'green';
+                if (codeCreator === currentTeam) {
+                    alert('The teammates managed to decode their message.')
+                } else {
+                    alert('The spies managed to break the intercepted code.')
+                }
+                console.log("Starting over")
+                assignTeams ()
+                
             } else {
                 result.textContent = 'Wrong!';
                 result.style.color = 'red';
@@ -241,7 +249,82 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
     }
-});
+
+function assignTeams () {
+            teamAssignment.style.display = 'block';
+
+            const shuffledPlayers = players.sort(() => Math.random() - 0.5);
+            const mid = Math.ceil(shuffledPlayers.length / 2);
+            //const blueTeam = shuffledPlayers.slice(0, mid);
+            //const redTeam = shuffledPlayers.slice(mid);
+            blueTeam = shuffledPlayers.slice(0, mid);
+            redTeam = shuffledPlayers.slice(mid);
+
+            blueTeamList.innerHTML = blueTeam.map(player => `<li>${player}</li>`).join('');
+            redTeamList.innerHTML = redTeam.map(player => `<li>${player}</li>`).join('');
+        }
+
+       function onlineMode() {
+  class SimpleGame extends netplayjs.Game {
+    // In the constructor, we initialize the state of our game.
+    constructor() {
+      super();
+      // Initialize our player positions.
+      this.aPos = { x: 100, y: 150 };
+      this.bPos = { x: 500, y: 150 };
+      this.cPos = { x: 300, y: 250 };
+      this.points = {
+        'a': Math.floor(Math.random() * 100), // Random points for player A
+        'b': Math.floor(Math.random() * 100),  // Random points for player B
+        'c': Math.floor(Math.random() * 100)  // Random points for player C
+        
+      };
+    }
+  
+    // The tick function takes a map of Player -> Input and
+    // simulates the game forward. Think of it like making
+    // a local multiplayer game with multiple controllers.
+    tick(playerInputs) {
+      for (const [player, input] of playerInputs.entries()) {
+        // Generate player velocity from input keys.
+        const vel = input.arrowKeys();
+  
+        // Apply the velocity to the appropriate player.
+        if (player.getID() == 0) {
+            if (decodedMessage === plainTextInput.value) {
+                document.body.style.color = 'red';
+            }
+          console.log("1")
+          this.aPos.x += vel.x * 5;
+          this.aPos.y -= vel.y * 5;
+        } else if (player.getID() == 1) {
+          console.log("2")
+          this.bPos.x += vel.x * 5;
+          this.bPos.y -= vel.y * 5;
+        } else if (player.getID() == 2) {
+          console.log("3")
+          this.cPos.x += vel.x * 5;
+          this.cPos.y -= vel.y * 5;
+        }
+      }
+    }
+  
+    // Normally, we have to implement a serialize / deserialize function
+    // for our state. However, there is an autoserializer that can handle
+    // simple states for us. We don't need to do anything here!
+    // serialize() {}
+    // deserialize(value) {}
+  
+    // Draw the state of our game onto a canvas.
+  }
+  
+  SimpleGame.timestep = 1000 / 60; // Our game runs at 60 FPS
+  SimpleGame.canvasSize = { width: 0, height: 0 };
+  
+  // Because our game can be easily rewound, we will use Rollback netcode
+  // If your game cannot be rewound, you should use LockstepWrapper instead.
+  new netplayjs.RollbackWrapper(SimpleGame).start();
+}
 
 
 
