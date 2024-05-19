@@ -1,3 +1,5 @@
+//TODO: Find an alternate way to stop scrolling instead of preventing an event, because that might block the ability to draw.
+
 document.addEventListener('DOMContentLoaded', () => {
     const playerSetup = document.getElementById('player-setup');
     const nameSetup = document.getElementById('name-setup');
@@ -110,19 +112,15 @@ document.addEventListener('DOMContentLoaded', () => {
     function startDrawing(event) {
         isDrawing = true;
         draw(event); // Start drawing immediately
-        event.preventDefault();
     }
 
     function stopDrawing(event) {
         isDrawing = false;
         ctx.beginPath();
-        event.preventDefault();
     }
 
     function draw(event) {
         if (!isDrawing) return;
-
-        event.preventDefault(); //This might prevent the drawing.
 
         const rect = canvas.getBoundingClientRect();
         let offsetX, offsetY;
