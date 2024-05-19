@@ -99,9 +99,9 @@ document.addEventListener('DOMContentLoaded', () => {
         canvas.addEventListener('mouseup', stopDrawing);
         canvas.addEventListener('mousemove', draw);
 
-        canvas.addEventListener('touchstart', startDrawing);
+        canvas.addEventListener('touchstart', startDrawing, { passive: false });
         canvas.addEventListener('touchend', stopDrawing);
-        canvas.addEventListener('touchmove', draw);
+        canvas.addEventListener('touchmove', draw, { passive: false });
 
         window.addEventListener('resize', resizeCanvas);
     });
@@ -152,6 +152,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function draw(event) {
         if (!isDrawing) return;
+        event.preventDefault(); //TODO: An attempt to stop scrolling on phones.
         const rect = canvas.getBoundingClientRect(); // Get the position of the canvas relative to the viewport
         //const x = event.clientX - rect.left; // Adjust X coordinate relative to the canvas
         //const y = event.clientY - rect.top; // Adjust Y coordinate relative to the canvas
