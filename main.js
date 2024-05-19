@@ -122,7 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function draw(event) {
         if (!isDrawing) return;
 
-        event.preventDefault();
+        event.preventDefault(); //This might prevent the drawing.
 
         const rect = canvas.getBoundingClientRect();
         let offsetX, offsetY;
@@ -153,30 +153,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     plainTextInput.addEventListener('input', transformPlaintext);
-
-    function draw(event) {
-        if (!isDrawing) return;
-        event.preventDefault(); //TODO: An attempt to stop scrolling on phones.
-        const rect = canvas.getBoundingClientRect(); // Get the position of the canvas relative to the viewport
-        //const x = event.clientX - rect.left; // Adjust X coordinate relative to the canvas
-        //const y = event.clientY - rect.top; // Adjust Y coordinate relative to the canvas
-        const offsetX = event.clientX - rect.left;
-        const offsetY = event.clientY - rect.top;
-
-        ctx.lineWidth = 1;
-        ctx.lineCap = 'round';
-
-        //ctx.lineTo(event.clientX - canvas.offsetLeft, event.clientY - canvas.offsetTop);
-        //ctx.stroke();
-        //ctx.beginPath();
-        //ctx.moveTo(event.clientX - canvas.offsetLeft, event.clientY - canvas.offsetTop);
-        //ctx.lineTo(x, y);
-        ctx.lineTo(offsetX, offsetY);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(offsetX, offsetY);
-        //ctx.moveTo(x, y);
-    }
 
     submitButton.addEventListener('click', () => {
         document.body.style.overflow = 'auto';
