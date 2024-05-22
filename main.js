@@ -1,4 +1,4 @@
-//TODO: Find an alternate way to stop scrolling instead of preventing an event, because that might block the ability to draw.
+//TODO: Work more on the server code, make a sort of connection system for the first page so that I can just sync names and don't have to do it all over.
     const playerSetup = document.getElementById('player-setup');
     const nameSetup = document.getElementById('name-setup');
     const teamAssignment = document.getElementById('team-assignment');
@@ -27,7 +27,7 @@
     const currentTeamDiv = document.getElementById('currentTeam');
     const playerScores = {};
     let codeCreator = "";
-    
+    let mainTeam = ""
     let isDrawing = false;
     let codedMessage = '';
     let decodedMessage
@@ -35,6 +35,7 @@
     let currentTeam = 'blue'; // Initial team TODO: Only do this if there aren't enough people to form 2 full teams.
     let blueTeam = [];
     let redTeam = [];
+    
     writeButton.addEventListener('click', () => {
         codedMessageInput.style.display = 'block'
         canvas.style.display = 'none';
@@ -197,6 +198,7 @@
                     if (isPlayerInCurrentTeam(player)) {
                         //TODO: this part of the code does not seem to trigger, check how isPlayerInCurrentTeam works.
                         playerScores[player]++;
+                        updateScore(player); //TODO: check server code
                         console.log(player + " awarded 1 point")
                         
                         console.log ("TEST1")
@@ -264,67 +266,54 @@ function assignTeams () {
             redTeamList.innerHTML = redTeam.map(player => `<li>${player}</li>`).join('');
         }
 
-       function onlineMode() {
-  class SimpleGame extends netplayjs.Game {
-    // In the constructor, we initialize the state of our game.
-    constructor() {
-      super();
-      // Initialize our player positions.
-      this.aPos = { x: 100, y: 150 };
-      this.bPos = { x: 500, y: 150 };
-      this.cPos = { x: 300, y: 250 };
-      this.points = {
-        'a': Math.floor(Math.random() * 100), // Random points for player A
-        'b': Math.floor(Math.random() * 100),  // Random points for player B
-        'c': Math.floor(Math.random() * 100)  // Random points for player C
-        
-      };
-    }
-  
-    // The tick function takes a map of Player -> Input and
-    // simulates the game forward. Think of it like making
-    // a local multiplayer game with multiple controllers.
-    tick(playerInputs) {
-      for (const [player, input] of playerInputs.entries()) {
-        // Generate player velocity from input keys.
-        const vel = input.arrowKeys();
-  
-        // Apply the velocity to the appropriate player.
-        if (player.getID() == 0) {
-            if (decodedMessage === plainTextInput.value) {
-                document.body.style.color = 'red';
-            }
-          console.log("1")
-          this.aPos.x += vel.x * 5;
-          this.aPos.y -= vel.y * 5;
-        } else if (player.getID() == 1) {
-          console.log("2")
-          this.bPos.x += vel.x * 5;
-          this.bPos.y -= vel.y * 5;
-        } else if (player.getID() == 2) {
-          console.log("3")
-          this.cPos.x += vel.x * 5;
-          this.cPos.y -= vel.y * 5;
+        const socket = new WebSocket('ws://localhost:3000');
+
+        socket.addEventListener('open', () => {
+        console.log('Connected to the server');
+        });
+
+        socket.addEventListener('message', (event) => {
+        const data = JSON.parse(event.data);
+
+        switch (data.type) {
+            case 'init':
+            playerScores = data.playerScores;
+            currentTeam = data.currentTeam;
+            blueTeam = data.blueTeam;
+            redTeam = data.redTeam;
+            updateUI();
+            break;
+            case 'updateScore':
+            playerScores[data.player] = data.score;
+            updateScoreUI(data.player, data.score);
+            break;
+            case 'swapTeam':
+            currentTeam = data.currentTeam;
+            updateCurrentTeamUI();
+            break;
+            // Add more cases as needed
         }
-      }
-    }
-  
-    // Normally, we have to implement a serialize / deserialize function
-    // for our state. However, there is an autoserializer that can handle
-    // simple states for us. We don't need to do anything here!
-    // serialize() {}
-    // deserialize(value) {}
-  
-    // Draw the state of our game onto a canvas.
-  }
-  
-  SimpleGame.timestep = 1000 / 60; // Our game runs at 60 FPS
-  SimpleGame.canvasSize = { width: 0, height: 0 };
-  
-  // Because our game can be easily rewound, we will use Rollback netcode
-  // If your game cannot be rewound, you should use LockstepWrapper instead.
-  new netplayjs.RollbackWrapper(SimpleGame).start();
-}
+        });
 
+        function updateScore(player) {
+        socket.send(JSON.stringify({ type: 'updateScore', player }));
+        }
 
+        function swapTeam() {
+        socket.send(JSON.stringify({ type: 'swapTeam' }));
+        }
+
+        function updateUI() {
+        // Update the UI based on the received game state
+        }
+
+        function updateScoreUI(player, score) {
+        // Update the UI to reflect the new score
+        }
+
+        function updateCurrentTeamUI() {
+        // Update the UI to reflect the current team
+        }
+
+        // Call updateScore and swapTeam at appropriate places in your game logic
 
