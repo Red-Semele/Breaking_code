@@ -37,12 +37,13 @@ button {
     margin-top: 10px;
 }
 
-canvas {
-    border: 1px solid black;
+#canvas {
+    border: 2px solid black;
     margin-top: 10px;
     max-width: 95vw; /* Set maximum width to 95% of viewport width */
     max-height: 80vh; /* Set maximum height to 80% of viewport height */
     position: relative;
+    display: block; /* Prevent the canvas from collapsing */
     top: 0;
     left: 0;
     
